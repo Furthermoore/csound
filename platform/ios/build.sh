@@ -21,6 +21,18 @@ cp ../Csound-for-iOS/src/iOSCsound.hpp xcframeworks/CsoundiOS.xcframework/ios-ar
 # remove CMakeLists
 rm xcframeworks/CsoundiOS.xcframework/ios-arm64/Headers/CMakeLists.txt
 rm xcframeworks/CsoundiOS.xcframework/ios-arm64-simulator/Headers/CMakeLists.txt
+# add a module map so Swift can `import CsoundiOS` (C API only; .hpp headers are excluded)
+for SLICE in ios-arm64 ios-arm64-simulator; do
+cat > xcframeworks/CsoundiOS.xcframework/$SLICE/Headers/module.modulemap <<'EOF'
+module CsoundiOS {
+    header "csound.h"
+    export *
+    link "c++"
+    link framework "AudioToolbox"
+    link framework "Accelerate"
+}
+EOF
+done
 # copy framework
 cd xcframeworks
 cp -rf CsoundiOS.xcframework ../../Csound-For-iOS/.
